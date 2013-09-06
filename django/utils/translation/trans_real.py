@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+from errno import ENOENT
 import locale
 import os
 import re
@@ -81,6 +82,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         gettext_module.GNUTranslations.__init__(self, *args, **kw)
         self.set_output_charset('utf-8')
         self.__language = '??'
+        self._catalog = {}
 
     def merge(self, other):
         self._catalog.update(other._catalog)
@@ -136,6 +138,11 @@ def translation(language):
                 return None
 
         res = _translation(globalpath)
+        if res is None:
+            warn_msg = ('Unable to read translations for requested '
+                'language:%s at path:%s') % (lang, globalpath)
+            warnings.warn(warn_msg, TranslatorCommentWarning)
+            res = DjangoTranslation()#gettext_module.NullTranslations()
 
         # We want to ensure that, for example,  "en-gb" and "en-us" don't share
         # the same translation object (thus, merging en-us with a local update

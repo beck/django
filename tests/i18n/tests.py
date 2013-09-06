@@ -7,6 +7,12 @@ from importlib import import_module
 import os
 import pickle
 from threading import local
+import warnings
+
+import sys
+oldout = sys.stdout
+sys.stdout = None
+
 
 from django.conf import settings
 from django.core.management.utils import find_command
@@ -1262,3 +1268,14 @@ class CountrySpecificLanguageTests(TransRealMixin, TestCase):
         r.META = {'HTTP_ACCEPT_LANGUAGE': 'pt-pt,en-US;q=0.8,en;q=0.6,ru;q=0.4'}
         lang = get_language_from_request(r)
         self.assertEqual('pt-br', lang)
+
+    @override_settings(
+        LANGUAGES=(
+            ('iu', 'Inuktitut'),
+        ),
+        LANGUAGE_CODE='iu',
+        LOCALE_PATHS=extended_locale_paths,
+    )
+    def test_unfamilar_language_codes(self):
+        with warnings.catch_warnings():
+            activate('iu-ca')
