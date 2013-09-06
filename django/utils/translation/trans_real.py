@@ -18,7 +18,7 @@ from django.utils._os import upath
 from django.utils.safestring import mark_safe, SafeData
 from django.utils import six
 from django.utils.six import StringIO
-from django.utils.translation import TranslatorCommentWarning
+from django.utils.translation import TranslatorCommentWarning, get_language_info
 
 
 # Translations are cached in a dictionary for every language+app tuple.
@@ -110,6 +110,8 @@ def translation(language):
     different from the requested language.
     """
     global _translations
+    print("where?")
+    print(list(_translations))
 
     t = _translations.get(language, None)
     if t is not None:
@@ -118,6 +120,7 @@ def translation(language):
     from django.conf import settings
 
     globalpath = os.path.join(os.path.dirname(upath(sys.modules[settings.__module__].__file__)), 'locale')
+    print("sup yo yo yo")
 
     def _fetch(lang, fallback=None):
 
@@ -138,11 +141,16 @@ def translation(language):
                 return None
 
         res = _translation(globalpath)
+        print("sup yo yo yo")
+        
+        # A globalpath translation is missing if the default languge is not
+        # recognized (rare) or an IOError occured while reading .po files
         if res is None:
-            warn_msg = ('Unable to read translations for requested '
-                'language:%s at path:%s') % (lang, globalpath)
-            warnings.warn(warn_msg, TranslatorCommentWarning)
-            res = DjangoTranslation()#gettext_module.NullTranslations()
+            try:
+                get_language_info(lang)
+                raise IOError
+            except KeyError:
+                res = DjangoTranslation()
 
         # We want to ensure that, for example,  "en-gb" and "en-us" don't share
         # the same translation object (thus, merging en-us with a local update
