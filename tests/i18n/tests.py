@@ -1298,7 +1298,8 @@ class LanguageNotFoundTests(TransRealMixin, TestCase):
        deactivate()
 
     def test_failure_reading_po_files(self):
+        self.flush_caches()
         self.mockGettextFind()
-        activate('es')
+        self.assertRaises(IOError, activate, 'en')
 
     
