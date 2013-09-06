@@ -128,12 +128,9 @@ def translation(language):
         loc = to_locale(lang)
 
         def _translation(path):
-            try:
-                t = gettext_module.translation('django', path, [loc], DjangoTranslation)
-                t.set_language(lang)
-                return t
-            except IOError:
-                return None
+            t = gettext_module.translation('django', path, [loc], DjangoTranslation)
+            t.set_language(lang)
+            return t
 
         res = _translation(globalpath)
 
@@ -147,12 +144,11 @@ def translation(language):
             res._catalog = res._catalog.copy()
 
         def _merge(path):
-            t = _translation(path)
-            if t is not None:
-                if res is None:
-                    return t
-                else:
-                    res.merge(t)
+            try:
+                t = _translation(path)
+            except IOError:
+                return res
+            res.merge(t)
             return res
 
         for appname in reversed(settings.INSTALLED_APPS):
