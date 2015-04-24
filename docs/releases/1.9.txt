@@ -853,6 +853,10 @@ Miscellaneous
 * :class:`~django.forms.CharField` now strips input of leading and trailing
   whitespace by default. This can be disabled by setting the new
   :attr:`~django.forms.CharField.strip` argument to ``False``.
+* Template copy that is translated and uses two or more consecutive percent
+  signs, e.g. "%%", may have a new msgid after makemessages is run (most likely
+  the translation will be marked fuzzy).  The new msgid will be marked
+  "#, python-format".
 
 .. _deprecated-features-1.9:
 
