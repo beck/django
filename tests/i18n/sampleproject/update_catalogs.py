@@ -1,6 +1,30 @@
 #!/usr/bin/env python
 
-"""Helper script to update sampleproject's translation catalogs."""
+"""Helper script to update sampleproject's translation catalogs.
+
+When a bug has been identified related to i18n, this helps capture the issue
+by using catalogs created from management comamnds.
+
+Example issue:
+
+The string "Two %% Three %%%" renders differently using trans and blocktrans.
+This issue is difficult to debug, it could be a problem with extraction,
+interpolation, or both.
+
+How this script helps capture and fix:
+ * Add {% trans "Two %% Three %%%" %} and blocktrans equivalent to templates.
+ * Run this script.
+ * Test extraction - verify the new msgid in sampleproject's django.po.
+ * Add a translation to django.po.
+ * Run this script.
+ * Test interpolation - verify templatetag rendering, test each in a template
+   that is rendered using an activated language from sampleproject's locale.
+ * Tests should fail, issue captured.
+ * Fix issue.
+ * Run this script.
+ * Tests all pass, happy days.
+
+"""
 
 import os
 import re
@@ -11,7 +35,7 @@ sys.path.append(os.path.abspath(os.path.join(proj_dir, '..', '..', '..')))
 
 
 def update_translation_catalogs():
-
+    """Run makemessages and compilemessages in sampleproject."""
     from django.core.management import call_command
 
     prev_cwd = os.getcwd()
@@ -25,8 +49,7 @@ def update_translation_catalogs():
 
     with open(pofile) as f:
         content = f.read()
-    content = re.sub(
-        r'^"POT-Creation-Date.+$\s', '', content, flags=re.MULTILINE)
+    content = re.sub(r'^"POT-Creation-Date.+$\s', '', content, flags=re.MULTILINE)
     with open(pofile, 'w') as f:
         f.write(content)
 
