@@ -5,13 +5,13 @@ import os
 
 from django.template import Context, Template
 from django.test import TestCase, override_settings
+from django.utils._os import upath
 from django.utils.encoding import force_text
 from django.utils.translation import activate, get_language, trans_real
 
 from .test_extraction import ExtractorTests
 
-SAMPLEPROJECT_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'sampleproject')
+SAMPLEPROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(upath(__file__))), 'sampleproject')
 SAMPLEPROJECT_LOCALE = os.path.join(SAMPLEPROJECT_DIR, 'locale')
 
 
@@ -107,8 +107,8 @@ class RenderingTemplatesWithPercentSigns(SimpleTestCase):
 
         # tests "%s"
         expected = ('On dirait un spec str fmt %s mais ne devrait pas être interprété comme plus disponible')
-        trans_tpl = Template(
-            '{% load i18n %}{% trans "Looks like a str fmt spec %s but should not be interpreted as such" %}')
+        trans_tpl = Template('{% load i18n %}{% trans "Looks like a str fmt spec %s but '
+                             'should not be interpreted as such" %}')
         self.assertEqual(trans_tpl.render(Context({})), expected)
         block_tpl = Template('{% load i18n %}{% blocktrans %}Looks like a str fmt spec %s but '
                              'should not be interpreted as such{% endblocktrans %}')
@@ -116,8 +116,8 @@ class RenderingTemplatesWithPercentSigns(SimpleTestCase):
 
         # tests "% o"
         expected = ('On dirait un spec str fmt % o mais ne devrait pas être interprété comme plus disponible')
-        trans_tpl = Template(
-            '{% load i18n %}{% trans "Looks like a str fmt spec % o but should not be interpreted as such" %}')
+        trans_tpl = Template('{% load i18n %}{% trans "Looks like a str fmt spec % o but should not be '
+                             'interpreted as such" %}')
         self.assertEqual(trans_tpl.render(Context({})), expected)
         block_tpl = Template('{% load i18n %}{% blocktrans %}Looks like a str fmt spec % o but should not be '
                              'interpreted as such{% endblocktrans %}')
@@ -133,6 +133,5 @@ class RenderingTemplatesWithPercentSigns(SimpleTestCase):
 
         block_tpl = Template('{% load i18n %}{% blocktrans %}{{name}} says: 1 percent sign %, '
                              '2 percent signs %%{% endblocktrans %}')
-        self.assertEqual(
-            block_tpl.render(Context({"name": "Django"})),
-            'Django dit: 1 pour cent signe %, deux signes de pourcentage %%')
+        self.assertEqual(block_tpl.render(Context({"name": "Django"})),
+                         'Django dit: 1 pour cent signe %, deux signes de pourcentage %%')
